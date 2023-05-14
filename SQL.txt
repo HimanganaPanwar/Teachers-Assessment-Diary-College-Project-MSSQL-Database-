@@ -1,0 +1,800 @@
+--DATABASE: COLLEGE_PROJECT_FILE_UPLOAD
+create table RegistrationTable_COLLEGEPROJECT_FILE_UPLOAD
+(
+	U_ID int identity primary key,
+	Registered_As nvarchar(20),
+	First_Name nvarchar(100),
+	Last_Name nvarchar(100),
+	Email nvarchar(200) not null,
+	PhoneNo bigint,
+	Password nvarchar(200) not null,
+	Confirm_Password nvarchar(200) not null,
+	Gender nvarchar(20),
+	ImageSize int,
+	Profile_Image_Data varchar(200),
+	DATE_TIME DATETIME NOT NULL,
+	AccountStatus nvarchar(100) NOT NULL
+)
+GO
+
+--ALTER TABLE RegistrationTable_COLLEGEPROJECT_FILE_UPLOAD ADD DATE_TIME DATETIME NOT NULL DEFAULT GETDATE();
+
+--SELECT * FROM RegistrationTable_COLLEGEPROJECT_FILE_UPLOAD;
+
+------------------LOGIN TABLE------------------:
+create table LoginTable_COLLEGEPROJECT_FILE_UPLOAD
+( 
+	U_ID int primary key foreign key references RegistrationTable_COLLEGEPROJECT_FILE_UPLOAD(U_ID) NOT NULL,
+	Registered_As nvarchar(20),	
+	Email nvarchar(200),
+	Password nvarchar(200),
+	AccountStatus nvarchar(100) NOT NULL
+)
+GO
+
+--ALTER TABLE LoginTable_COLLEGEPROJECT_FILE_UPLOAD ADD AccountStatus nvarchar(100) NOT NULL DEFAULT 'Enabled';
+
+------------------GENERAL INFO TABLE------------------:
+create table GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD
+(
+	U_ID int primary key foreign key references RegistrationTable_COLLEGEPROJECT_FILE_UPLOAD(U_ID) NOT NULL,
+	Registered_As nvarchar(20),
+	Prefix nvarchar(100),
+	First_Name nvarchar(100),
+	Last_Name nvarchar(100),
+	Fathers_Name nvarchar(200),
+	Mothers_Name nvarchar(200),
+	Husbands_Name nvarchar(200),
+	Email nvarchar(200) not null,
+	PhoneNo bigint,
+	AlternatePhoneNo bigint,
+	Password nvarchar(200) not null,
+	Confirm_Password nvarchar(200) not null,
+	Gender nvarchar(20),
+	Faculty nvarchar(100),
+	Department nvarchar(100),
+	Status nvarchar(100),
+	Address nvarchar(200),
+	ImageSize int,
+	Profile_Image_Data varchar(200),
+	DATE_TIME DATETIME NOT NULL,
+	AccountStatus nvarchar(100) NOT NULL
+)
+GO
+
+--ALTER TABLE GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD ADD DATE_TIME DATETIME NOT NULL DEFAULT GETDATE();
+
+select * from GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD;
+
+--ALTER TABLE GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD ADD AccountStatus nvarchar(100) NOT NULL DEFAULT 'Enabled';
+
+select * from GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD
+select * from LoginTable_COLLEGEPROJECT_FILE_UPLOAD
+select * from RegistrationTable_COLLEGEPROJECT_FILE_UPLOAD
+
+--update GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD set Prefix = 'Dr.' where U_ID = 1007;
+
+--update RegistrationTable_COLLEGEPROJECT_FILE_UPLOAD set AccountStatus = 'Disabled' where U_ID = 1012;
+
+--ALTER DATABASE SCOPED CONFIGURATION SET IDENTITY_CACHE = OFF
+GO
+
+
+------------------ STORED PROCEDURE (REGISTRATION) INSERT ------------------:
+Create Procedure COLLEGEPROJECT_sp_InsertMainData_FILE_UPLOAD
+@Registered_As nvarchar(50),
+@Prefix nvarchar(100) = NULL,
+@First_Name nvarchar(100),
+@Last_Name nvarchar(100),
+@Fathers_Name nvarchar(200) = NULL,
+@Mothers_Name nvarchar(200) = NULL,
+@Husbands_Name nvarchar(200) = NULL,
+@Email nvarchar(200),
+@PhoneNo bigint,
+@AlternatePhoneNo bigint = NULL,
+@Password nvarchar(200),
+@Confirm_Password nvarchar(200),
+@Gender nvarchar(20),
+@Faculty nvarchar(100) = Null,
+@Department nvarchar(100) = Null,
+@Status nvarchar(100) = NULL,
+@Address nvarchar(200) = NULL,
+@ImageSize int = NULL,
+@Profile_Image_Data varchar(200) = NULL,
+@AccountStatus nvarchar(100),
+@DATE_TIME DATETIME,
+@U_ID int output
+as
+Begin
+begin
+	Insert into RegistrationTable_COLLEGEPROJECT_FILE_UPLOAD values(@Registered_As, @First_Name, @Last_Name, @Email, @PhoneNo, @Password, @Confirm_Password, @Gender, @ImageSize, @Profile_Image_Data, @AccountStatus, @DATE_TIME)
+	select @U_ID = SCOPE_IDENTITY()
+end
+begin
+	Insert into LoginTable_COLLEGEPROJECT_FILE_UPLOAD values(@U_ID, @Registered_As, @Email, @Password, @AccountStatus);
+end
+begin
+	Insert into GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD values(@U_ID, @Registered_As, @Prefix, @First_Name, @Last_Name, @Fathers_Name, @Mothers_Name, @Husbands_Name, @Email, @PhoneNo, @AlternatePhoneNo, @Password, @Confirm_Password, @Gender, @Faculty, @Department, @Status, @Address, @ImageSize, @Profile_Image_Data, @AccountStatus, @DATE_TIME)
+end
+End
+GO
+
+--drop procedure COLLEGEPROJECT_sp_InsertMainData_FILE_UPLOAD;
+
+
+------------------ STORED PROCEDURE (REGISTRATION) UPDATE ------------------:
+Create Procedure sp_UpdateMainData_COLLEGEPROJECT_FILE_UPLOAD
+@Prefix nvarchar(100) = NULL,
+@First_Name nvarchar(100),
+@Last_Name nvarchar(100),
+@Fathers_Name nvarchar(200) = NULL,
+@Mothers_Name nvarchar(200) = NULL,
+@Husbands_Name nvarchar(200) = NULL,
+@Email nvarchar(200),
+@PhoneNo bigint,
+@AlternatePhoneNo bigint = NULL,
+@Gender nvarchar(20),
+@Faculty nvarchar(100),
+@Department nvarchar(100),
+@Status nvarchar(100) = NULL,
+@Address nvarchar(200) = NULL,
+@ImageSize int = NULL,
+@Profile_Image_Data varchar(200) = NULL,
+@U_ID int
+as
+Begin
+begin
+	UPDATE RegistrationTable_COLLEGEPROJECT_FILE_UPLOAD SET First_Name = @First_Name, Last_Name = @Last_Name, Email = @Email, PhoneNo = @PhoneNo, Gender = @Gender WHERE U_ID = @U_ID;
+end
+begin
+	UPDATE LoginTable_COLLEGEPROJECT_FILE_UPLOAD SET Email = @Email WHERE U_ID = @U_ID;
+end
+begin
+	UPDATE GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD SET Prefix = @Prefix, First_Name = @First_Name, Last_Name = @Last_Name, Fathers_Name = @Fathers_Name, Mothers_Name = @Mothers_Name, Husbands_Name = @Husbands_Name, Email = @Email, PhoneNo = @PhoneNo, AlternatePhoneNo = @AlternatePhoneNo, Gender = @Gender, Faculty = @Faculty, Department = @Department, Status = @Status, Address = @Address WHERE U_ID = @U_ID;
+end
+End
+
+update GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD set First_Name = 'ADMIN', Last_Name ='2' where U_ID = 1009;
+
+------------------ STORED PROCEDURE: FORGOT PASSWORD ------------------:
+Create Procedure sp_ForgotPassword_COLLEGEPROJECT_FILE_UPLOAD
+@Email nvarchar(90),
+@Registered_As nvarchar(50),
+@PhoneNo bigint,
+@Password nvarchar(30),
+@Confirm_Password nvarchar(30)
+as
+Begin
+begin
+	UPDATE RegistrationTable_COLLEGEPROJECT_FILE_UPLOAD SET Password = @Password, Confirm_Password = @Confirm_Password WHERE Email = @Email and Registered_As = @Registered_As;
+end
+begin
+	UPDATE LoginTable_COLLEGEPROJECT_FILE_UPLOAD SET Password = @Password WHERE Email = @Email and Registered_As = @Registered_As;
+end
+begin
+	UPDATE GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD SET Password = @Password, Confirm_Password = @Confirm_Password WHERE Email = @Email and Registered_As = @Registered_As;
+end
+End
+
+--drop procedure sp_ForgotPassword_COLLEGEPROJECT_FILE_UPLOAD;
+
+
+------------------ STORED PROCEDURE: RESET PASSWORD ------------------:
+--FOR LECTURER:
+Create Procedure sp_ResetPassword_COLLEGEPROJECT_FILE_UPLOAD
+@Password nvarchar(30),
+@Confirm_Password nvarchar(30),
+@Registered_As nvarchar(50),
+@U_ID int
+as
+Begin
+begin
+	UPDATE RegistrationTable_COLLEGEPROJECT_FILE_UPLOAD SET Password = @Password, Confirm_Password = @Confirm_Password WHERE U_ID = @U_ID and Registered_As = 'LECTURER';
+end
+begin
+	UPDATE LoginTable_COLLEGEPROJECT_FILE_UPLOAD SET Password = @Password WHERE U_ID = @U_ID and Registered_As = 'LECTURER';
+end
+begin
+	UPDATE GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD SET Password = @Password, Confirm_Password = @Confirm_Password WHERE U_ID = @U_ID and Registered_As = 'LECTURER';
+end
+End
+
+
+--FOR ADMIN:
+Create Procedure UpdateAdminPassword_COLLEGEPROJECT_FILE_UPLOAD
+@Password nvarchar(30),
+@Confirm_Password nvarchar(30),
+@Registered_As nvarchar(50),
+@Email nvarchar(200)
+as
+Begin
+begin
+	UPDATE RegistrationTable_COLLEGEPROJECT_FILE_UPLOAD SET Password = @Password, Confirm_Password = @Confirm_Password WHERE Email = @Email and Registered_As = @Registered_As;
+end
+begin
+	UPDATE LoginTable_COLLEGEPROJECT_FILE_UPLOAD SET Password = @Password WHERE Email = @Email and Registered_As = @Registered_As;
+end
+begin
+	UPDATE GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD SET Password = @Password, Confirm_Password = @Confirm_Password WHERE Email = @Email and Registered_As = @Registered_As;
+end
+End
+
+
+
+
+
+--------------------------STORED PROCEDURE: DISABLE ACCOUNT------------------
+CREATE PROCEDURE SP_DisableAccount
+@AccountStatus nvarchar(100),
+@U_ID int
+AS
+BEGIN
+ BEGIN
+	UPDATE RegistrationTable_COLLEGEPROJECT_FILE_UPLOAD SET AccountStatus = @AccountStatus WHERE U_ID = @U_ID;
+ END
+ BEGIN
+	UPDATE LoginTable_COLLEGEPROJECT_FILE_UPLOAD SET AccountStatus = @AccountStatus WHERE U_ID = @U_ID;
+ END
+ BEGIN
+	UPDATE GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD SET AccountStatus = @AccountStatus WHERE U_ID = @U_ID;
+ END
+END
+
+
+----------------------------------------STORED PROCEDURE TO ENABLE ACCOUNTS----------------------------------------
+CREATE PROCEDURE SP_EnableAccount
+@AccountStatus nvarchar(100),
+@Email nvarchar(200)
+AS
+BEGIN
+ BEGIN
+	UPDATE RegistrationTable_COLLEGEPROJECT_FILE_UPLOAD SET AccountStatus = @AccountStatus WHERE Email = @Email;
+ END
+ BEGIN
+	UPDATE LoginTable_COLLEGEPROJECT_FILE_UPLOAD SET AccountStatus = @AccountStatus WHERE Email = @Email;
+ END
+ BEGIN
+	UPDATE GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD SET AccountStatus = @AccountStatus WHERE Email = @Email;
+ END
+END
+
+
+
+select * from RegistrationTable_COLLEGEPROJECT_FILE_UPLOAD;
+select * from Leave_Record_COLLEGEPROJECT_FILE_UPLOAD;
+
+
+Select * from Problems;
+
+-------------------- STORED PROCEDURE DELETE THE ENTIRE RECORD ------------------:
+Create Procedure sp_DeleteEntireRecord_COLLEGEPROJECT_FILE_UPLOAD
+--@Teacher_ID int,
+@U_ID int
+as
+Begin	
+	begin
+		Delete from Qualification_COLLEGEPROJECT_FILE_UPLOAD where Teacher_ID = @U_ID;
+	end
+	begin
+		DELETE FROM Leave_Record_COLLEGEPROJECT_FILE_UPLOAD WHERE Teacher_ID = @U_ID;
+	end
+	begin
+		DELETE FROM Career_Advancement_Qualification_COLLEGEPROJECT_FILE_UPLOAD WHERE Teacher_ID = @U_ID;
+	end
+	begin
+		DELETE FROM UnderGraduateCourses_COLLEGEPROJECT_FILE_UPLOAD WHERE Teacher_ID = @U_ID;
+	end
+	begin
+		DELETE FROM PostGraduateCourses_COLLEGEPROJECT_FILE_UPLOAD WHERE Teacher_ID = @U_ID;
+	end
+	begin
+		DELETE FROM ResearchActivities_4_COLLEGEPROJECT_FILE_UPLOAD WHERE Teacher_ID = @U_ID;
+	end
+	begin
+		DELETE FROM Publication_SCP_COLLEGEPROJECT_FILE_UPLOAD WHERE Teacher_ID = @U_ID;
+	end
+	begin
+		DELETE FROM Publication_Journals_COLLEGEPROJECT_FILE_UPLOAD WHERE Teacher_ID = @U_ID;
+	end
+	begin
+		DELETE FROM Books_Monographs_COLLEGEPROJECT_FILE_UPLOAD WHERE Teacher_ID = @U_ID;
+	end
+	begin
+		DELETE FROM Publications_Projects_COLLEGEPROJECT_FILE_UPLOAD WHERE Teacher_ID = @U_ID;
+	end
+	begin
+		DELETE FROM Organized_Table_1_COLLEGEPROJECT_FILE_UPLOAD WHERE Teacher_ID = @U_ID;
+	end
+	begin
+		DELETE FROM Organized_Table_2_COLLEGEPROJECT_FILE_UPLOAD WHERE Teacher_ID = @U_ID;
+	end
+	begin
+		DELETE FROM Resources_Table_1_COLLEGEPROJECT_FILE_UPLOAD WHERE Teacher_ID = @U_ID;
+	end
+	begin
+		DELETE FROM Resources_Table_2_COLLEGEPROJECT_FILE_UPLOAD WHERE Teacher_ID = @U_ID;
+	end
+	begin
+		DELETE FROM Co_Curricular_Activities_COLLEGEPROJECT_FILE_UPLOAD WHERE Teacher_ID = @U_ID;
+	end
+	begin
+		DELETE FROM Extra_Curricular_Activities_COLLEGEPROJECT_FILE_UPLOAD WHERE Teacher_ID = @U_ID;
+	end
+	begin
+		DELETE FROM Examinership_COLLEGEPROJECT_FILE_UPLOAD WHERE Teacher_ID = @U_ID;
+	end
+	begin
+		DELETE FROM Awards_Scholarship_COLLEGEPROJECT_FILE_UPLOAD WHERE Teacher_ID = @U_ID;
+	end
+	begin
+		DELETE FROM Institude_Membership_COLLEGEPROJECT_FILE_UPLOAD WHERE Teacher_ID = @U_ID;
+	end
+	begin
+		DELETE FROM AnyOtherInfo_COLLEGEPROJECT_FILE_UPLOAD WHERE Teacher_ID = @U_ID;
+	end
+	begin 
+		Delete from Problems where Teacher_ID = @U_ID;
+	end
+	begin
+		Delete from LOGIN_DETAILS where L_ID = @U_ID;
+	end
+
+	begin
+		Delete from LoginTable_COLLEGEPROJECT_FILE_UPLOAD where U_ID = @U_ID;
+	end
+	begin
+		Delete from GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD where U_ID = @U_ID;
+	end
+	begin
+		Delete from RegistrationTable_COLLEGEPROJECT_FILE_UPLOAD where U_ID = @U_ID;
+	end
+End
+
+--drop procedure sp_DeleteEntireRecord_COLLEGEPROJECT_FILE_UPLOAD;
+
+--EXEC sp_DeleteEntireRecord_COLLEGEPROJECT_FILE_UPLOAD @U_ID = 1007;
+--EXEC sp_DeleteEntireRecord_COLLEGEPROJECT_FILE_UPLOAD @U_ID = 1008;
+--EXEC sp_DeleteEntireRecord_COLLEGEPROJECT_FILE_UPLOAD @U_ID = 1010;
+--EXEC sp_DeleteEntireRecord_COLLEGEPROJECT_FILE_UPLOAD @U_ID = 1011;
+--EXEC sp_DeleteEntireRecord_COLLEGEPROJECT_FILE_UPLOAD @U_ID = 1012;
+
+
+EXEC sp_DeleteEntireRecord_COLLEGEPROJECT_FILE_UPLOAD @U_ID = 1004;
+EXEC sp_DeleteEntireRecord_COLLEGEPROJECT_FILE_UPLOAD @U_ID = 1007;
+EXEC sp_DeleteEntireRecord_COLLEGEPROJECT_FILE_UPLOAD @U_ID = 1008;
+EXEC sp_DeleteEntireRecord_COLLEGEPROJECT_FILE_UPLOAD @U_ID = 1009;
+EXEC sp_DeleteEntireRecord_COLLEGEPROJECT_FILE_UPLOAD @U_ID = 1010;
+EXEC sp_DeleteEntireRecord_COLLEGEPROJECT_FILE_UPLOAD @U_ID = 1011;
+EXEC sp_DeleteEntireRecord_COLLEGEPROJECT_FILE_UPLOAD @U_ID = 1012;
+EXEC sp_DeleteEntireRecord_COLLEGEPROJECT_FILE_UPLOAD @U_ID = 1013;
+EXEC sp_DeleteEntireRecord_COLLEGEPROJECT_FILE_UPLOAD @U_ID = 1014;
+
+--drop procedure sp_DeleteEntireRecord_COLLEGEPROJECT_FILE_UPLOAD
+
+
+--============================================================================================================================
+--PDF TABLES:
+--============================================================================================================================
+
+create table Qualification_COLLEGEPROJECT_FILE_UPLOAD
+(
+	S_No int identity PRIMARY KEY,
+	Teacher_ID int foreign key references GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD(U_ID) NOT NULL,
+	Year int,
+	Document_Type varchar(100),
+	AnyOther nvarchar(100),
+	FileName varchar(100),
+	FileType varchar(100),
+	FileData varbinary(MAX),
+	UploadedOn DATETIME
+)
+GO
+select * from Qualification_COLLEGEPROJECT_FILE_UPLOAD
+
+create table Leave_Record_COLLEGEPROJECT_FILE_UPLOAD
+(
+	S_No int identity primary key,
+	Teacher_ID int foreign key references GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD(U_ID) NOT NULL,
+	Year int,
+	Casual_Leave int,
+	Extraordinary_Leave int,
+	Academic_Leave int,
+	Duty_Leave  int
+)
+GO
+
+select * from Leave_Record_COLLEGEPROJECT_FILE_UPLOAD;
+
+create table Career_Advancement_Qualification_COLLEGEPROJECT_FILE_UPLOAD
+(
+	S_No int identity primary key,
+	Teacher_ID int foreign key references GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD(U_ID) NOT NULL,
+	Year int,
+	Document_Type nvarchar(100),
+	Place nvarchar(200),	
+	Duration nvarchar(100),
+	Sponsering_Agency varchar(200),
+	FileName varchar(100),
+	FileType varchar(100),
+	FileData varbinary(MAX),
+	UploadedOn DATETIME
+)
+GO
+select * from Career_Advancement_Qualification_COLLEGEPROJECT_FILE_UPLOAD
+
+Create Table UnderGraduateCourses_COLLEGEPROJECT_FILE_UPLOAD
+(	
+	S_No int identity PRIMARY KEY,
+	Teacher_ID int foreign key references GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD(U_ID) NOT NULL,
+	Year int,
+	Class varchar(200),
+	Paper varchar(200),
+	Nomenclature varchar(200),
+	PeriodsPerWeek int,
+	Lecture_Method nvarchar(200),
+	Seminar_Presentation_Method nvarchar(200),
+	UploadedOn DATETIME
+)
+GO
+SELECT * FROM UnderGraduateCourses_COLLEGEPROJECT_FILE_UPLOAD
+
+Create Table PostGraduateCourses_COLLEGEPROJECT_FILE_UPLOAD
+(	
+	S_No int identity PRIMARY KEY,
+	Teacher_ID int foreign key references GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD(U_ID) NOT NULL,
+	Year int,
+	Class varchar(200),
+	Paper varchar(200),
+	Nomenclature varchar(200),
+	PeriodsPerWeek int,
+	Lecture_Method nvarchar(200),
+	Seminar_Presentation_Method nvarchar(200),
+	UploadedOn DATETIME
+)
+GO
+SELECT * FROM PostGraduateCourses_COLLEGEPROJECT_FILE_UPLOAD
+
+--=========================================================================================================================================
+create table ResearchActivities_4_COLLEGEPROJECT_FILE_UPLOAD
+(
+	S_No int identity PRIMARY KEY,
+	Teacher_ID int foreign key references GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD(U_ID) NOT NULL,
+	DocumentType varchar(200),
+	OrganisingBody nvarchar(200),
+	ThemeOfSeminar nvarchar(200),
+	Date nvarchar(200),
+	Level nvarchar(100),
+	TitleOfPaper nvarchar(200),
+	FileName varchar(100),
+	FileType varchar(100),
+	FileData varbinary(MAX)
+)
+GO
+SELECT * FROM ResearchActivities_4_COLLEGEPROJECT_FILE_UPLOAD
+
+--drop table ResearchActivities_4_COLLEGEPROJECT_FILE_UPLOAD
+
+create table Publication_SCP_COLLEGEPROJECT_FILE_UPLOAD
+(
+	S_No int identity PRIMARY KEY,
+	Teacher_ID int foreign key references GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD(U_ID) NOT NULL,
+	OrganisationBody nvarchar(200),
+	ProceedingsName nvarchar(200),
+	PublicationYear int,
+	ISSN_ISBN_No int,
+	ChapterNo int,
+	ChapterNo_Name nvarchar(200),
+	ChapterNo_PageNo int,
+	FileName varchar(100),
+	FileType varchar(100),
+	FileData varbinary(MAX),
+	UploadedOn DATETIME
+)
+GO
+select * from Publication_SCP_COLLEGEPROJECT_FILE_UPLOAD
+
+--=========================================================================================================================================
+
+Create Table Publication_Journals_COLLEGEPROJECT_FILE_UPLOAD
+(
+	S_No int identity PRIMARY KEY,
+	Teacher_ID int foreign key references GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD(U_ID) NOT NULL,
+	Year int,
+	Journal_Name nvarchar(100),
+	Publishing_Agency nvarchar(200),
+	Refereed nvarchar(200),
+	Non_Refereed nvarchar(200),
+	Level int,
+	ChapterNo int,
+	ChapterNo_Name nvarchar(100),
+	ChapterNo_PageNo int,
+	FileName varchar(100),
+	FileType varchar(100),
+	FileData varbinary(MAX),
+	UploadedOn DATETIME
+)
+GO
+SELECT * FROM Publication_Journals_COLLEGEPROJECT_FILE_UPLOAD
+
+Create Table Books_Monographs_COLLEGEPROJECT_FILE_UPLOAD
+(
+	S_No int identity PRIMARY KEY,
+	Teacher_ID int foreign key references GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD(U_ID) NOT NULL,
+	Title nvarchar(200),
+	Sole_Author_Name nvarchar(200),
+	Co_Author_Name nvarchar(200),
+	Publishing_House nvarchar(200),
+	Year int,
+	Reference_OR_Text nvarchar(100),
+	ISSN_OR_ISBN_No int,
+	FileName varchar(100),
+	FileType varchar(100),
+	FileData varbinary(MAX),
+	UploadedOn DATETIME
+)
+GO
+select * from Books_Monographs_COLLEGEPROJECT_FILE_UPLOAD
+
+create table Publications_Projects_COLLEGEPROJECT_FILE_UPLOAD
+(
+	S_No int identity PRIMARY KEY,
+	Teacher_ID int foreign key references GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD(U_ID) NOT NULL,
+	Year int,
+	Title nvarchar(200),
+	FundingAgency nvarchar(200),
+	Complete nvarchar(100),
+	Continuing nvarchar(100),
+	Major nvarchar(100),
+	Minor nvarchar(100),
+	Other nvarchar(100),
+	FileName varchar(100),
+	FileType varchar(100),
+	FileData varbinary(MAX),
+	UploadedOn DATETIME
+)
+GO
+
+SELECT * FROM Publications_Projects_COLLEGEPROJECT_FILE_UPLOAD
+
+Create Table Organized_Table_1_COLLEGEPROJECT_FILE_UPLOAD
+(
+	S_No int identity PRIMARY KEY,
+	Teacher_ID int foreign key references GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD(U_ID) NOT NULL,
+	Year int,
+	Theme nvarchar(200),
+	Date_Value nvarchar(200),
+	Level int,
+	YourRole varchar(200),
+	FileName varchar(100),
+	FileType varchar(100),
+	FileData varbinary(MAX),
+	UploadedOn DATETIME
+)
+GO
+SELECT * FROM Organized_Table_1_COLLEGEPROJECT_FILE_UPLOAD
+
+create table Organized_Table_2_COLLEGEPROJECT_FILE_UPLOAD
+(
+	S_No int identity PRIMARY KEY,
+	Teacher_ID int foreign key references GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD(U_ID) NOT NULL,
+	Year int,
+	Organisation_Name varchar(200),
+	Date_Value nvarchar(200),
+	Level int,
+	Lecture_Subject varchar(200),
+	FileName varchar(100),
+	FileType varchar(100),
+	FileData varbinary(MAX),
+	UploadedOn DATETIME
+)
+Go
+SELECT * FROM Organized_Table_2_COLLEGEPROJECT_FILE_UPLOAD
+
+create table Resources_Table_1_COLLEGEPROJECT_FILE_UPLOAD
+(
+	S_No int identity PRIMARY KEY,
+	Teacher_ID int foreign key references GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD(U_ID) NOT NULL,
+	Year int,
+	Organising_Institution varchar(200),
+	Theme nvarchar(200),
+	Date_Value nvarchar(200),
+	Level int,
+	FileName varchar(100),
+	FileType varchar(100),
+	FileData varbinary(MAX),
+	UploadedOn DATETIME
+)
+GO
+
+SELECT * FROM Resources_Table_1_COLLEGEPROJECT_FILE_UPLOAD
+
+create table Resources_Table_2_COLLEGEPROJECT_FILE_UPLOAD
+(
+	S_No int identity PRIMARY KEY,
+	Teacher_ID int foreign key references GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD(U_ID) NOT NULL,
+	Year int,
+	Nature nvarchar(200),
+	Title varchar(200),
+	ScholarName varchar(200),
+	Complete nvarchar(200),
+	Continuing nvarchar(200),
+	Extra_Col1 nvarchar(200),
+	Extra_Col2 nvarchar(200),
+	FileName varchar(200),
+	FileType varchar(200),
+	FileData varbinary(MAX),
+	UploadedOn DATETIME
+)
+GO
+
+SELECT * FROM Resources_Table_2_COLLEGEPROJECT_FILE_UPLOAD
+
+create table Co_Curricular_Activities_COLLEGEPROJECT_FILE_UPLOAD
+(
+	S_No int identity PRIMARY KEY,
+	Teacher_ID int foreign key references GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD(U_ID) NOT NULL,
+	Year int,
+	Activity_Name varchar(200),
+	Convener_Member varchar(200),
+	Contribution varchar(200),
+	Helped varchar(200),
+	UploadedOn DATETIME
+)
+GO
+
+SELECT * FROM Co_Curricular_Activities_COLLEGEPROJECT_FILE_UPLOAD
+
+create table Extra_Curricular_Activities_COLLEGEPROJECT_FILE_UPLOAD
+(
+	S_No int identity PRIMARY KEY,
+	Teacher_ID int foreign key references GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD(U_ID) NOT NULL,
+	Year int,
+	Activity_Name varchar(200),
+	Convener_Member varchar(200),
+	Contribution varchar(200),
+	UploadedOn DATETIME
+)
+GO
+
+SELECT * FROM Extra_Curricular_Activities_COLLEGEPROJECT_FILE_UPLOAD
+
+create table Examinership_COLLEGEPROJECT_FILE_UPLOAD
+(
+	S_No int identity PRIMARY KEY,
+	Teacher_ID int foreign key references GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD(U_ID) NOT NULL,
+	Year int,
+	Class nvarchar(200),
+	Paper varchar(200),
+	Institution_Name varchar(200),
+	FileName varchar(100),
+	FileType varchar(100),
+	FileData varbinary(MAX),
+	UploadedOn DATETIME
+)
+GO
+
+SELECT * FROM Examinership_COLLEGEPROJECT_FILE_UPLOAD
+
+create table Awards_Scholarship_COLLEGEPROJECT_FILE_UPLOAD
+(
+	S_No int identity PRIMARY KEY,
+	Teacher_ID int foreign key references GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD(U_ID) NOT NULL,
+	Year int,
+	Awards_Name varchar(200),
+	FileName varchar(100),
+	FileType varchar(100),
+	FileData varbinary(MAX),
+	Comment varchar(500),
+	UploadedOn DATETIME
+)
+GO
+
+SELECT * FROM Awards_Scholarship_COLLEGEPROJECT_FILE_UPLOAD
+
+create table Institude_Membership_COLLEGEPROJECT_FILE_UPLOAD
+(
+	S_No int identity PRIMARY KEY,
+	Teacher_ID int foreign key references GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD(U_ID) NOT NULL,
+	Year int,
+	Institude_Name varchar(200),
+	Duration nvarchar(100),
+	MembershipYear nvarchar(100),
+	Level int,
+	FileName varchar(100),
+	FileType varchar(100),
+	FileData varbinary(MAX),
+	UploadedOn DATETIME
+)
+GO
+
+SELECT * FROM Institude_Membership_COLLEGEPROJECT_FILE_UPLOAD
+
+create table AnyOtherInfo_COLLEGEPROJECT_FILE_UPLOAD
+(
+	S_No int identity PRIMARY KEY,
+	Teacher_ID int foreign key references GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD(U_ID) NOT NULL,
+	Year int,
+	InfoName varchar(200),
+	Comment nvarchar(500),
+	FileName varchar(100),
+	FileType varchar(100),
+	FileData varbinary(MAX),
+	UploadedOn DATETIME
+)
+GO
+
+SELECT * FROM AnyOtherInfo_COLLEGEPROJECT_FILE_UPLOAD
+
+----------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------
+
+
+--CREATE TABLE Problems
+--(
+--	S_No INT IDENTITY PRIMARY KEY,
+--	Teacher_ID INT FOREIGN KEY REFERENCES GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD(U_ID) NOT NULL,
+--	Report_Date DATE,
+--	Title NVARCHAR(100),
+--	Description NVARCHAR(400),
+--	ImageName nvarchar(300),
+--	ImageType nvarchar(200),
+--	AttachImageData nvarchar(MAX)
+--	AttachImageData varbinary(MAX),
+--	Status NVARCHAR(20)
+--)
+--GO
+
+CREATE TABLE Problems
+(
+	S_No INT IDENTITY PRIMARY KEY,
+	Teacher_ID INT FOREIGN KEY REFERENCES GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD(U_ID) NOT NULL,
+	Report_Date DATE,
+	Title NVARCHAR(100),
+	Description NVARCHAR(400),
+	AttachImageData nvarchar(MAX),
+	Status NVARCHAR(20)
+)
+GO
+
+--ALTER TABLE Problems ALTER COLUMN Description nvarchar(1000);
+
+--drop table Problems;
+
+--update Problems set AttachImageData = '~/ProblemImages/1.png' where S_No = 1;
+--update Problems set ErrorImage = 'bear-cub-cup-coffee-tea-drink-logo-icon-illustration_7688-2303.jpg' where S_No = 2;
+
+select * from Problems;
+
+select * from Leave_Record_COLLEGEPROJECT_FILE_UPLOAD
+
+select * from LoginTable_COLLEGEPROJECT_FILE_UPLOAD;
+
+
+
+
+-------------------ENCRYPTION TABLE:------------------------
+--create table EncryptDecrypt
+--(
+--	Email nvarchar(100),
+--	Password nvarchar(50),
+--	ConfirmPassword nvarchar(50)
+--)
+--GO
+--drop table EncryptDecrypt;
+--select * from EncryptDecrypt;
+
+
+
+------------------------------SAVE LOGIN DATE AND TIME------------------------------:
+CREATE TABLE LOGIN_DETAILS
+(
+	S_NO INT IDENTITY,
+	--L_ID INT foreign key references GeneralInfo_COLLEGEPROJECT_FILE_UPLOAD(U_ID) NOT NULL,
+	EMAIL NVARCHAR(200),
+	DATE_TIME DATETIME
+)
+GO
+
+select * from LOGIN_DETAILS;
+
+--drop table LOGIN_DETAILS;
